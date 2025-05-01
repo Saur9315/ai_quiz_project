@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Quiz Game{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Quiz Game</div>
+        <button class="menu-toggle" onclick="toggleSidebar()">☰ Меню</button>
+        <ul>
+            <li><a href="{% url 'home' %}">Главная</a></li>
+            <!-- <li><a href="#">Профиль</a></li> -->
+            <li><a href="#">Настройки</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'logout' %}">Выход</a></li>
+            {% else %}
+                <li><a href="{% url 'login' %}">login</a></li>
+            {%endif%}
+        </ul>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <ul>
+                <li><a href="#">Панель 1</a></li>
+                <li><a href="#">Панель 2</a></li>
+                <li><a href="#">Панель 3</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+    </script>
+        
+</body>
+</html>
+
