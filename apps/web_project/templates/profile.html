@@ -3,6 +3,20 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-    <p>Name: {{ user.username }}</p>
+    <p>Username: {{ user.username }}</p>
     <p>Email: {{ user.email }}</p>
+    {% if user.first_name %}<p>First name: {{ user.first_name }}</p>{% endif %}
+    {% if user.last_name %}<p>Last name: {{ user.last_name }}</p>{% endif %}
+    {% if user.birthdate %}
+        <p>Birthdate: {{ user.birthdate }}</p>
+    {% endif %}
+    {% if user.country %}
+        <p>Country: {{ user.country }}</p>
+    {% endif %}
+    {% if user.city %}
+        <p>City: {{ user.city }}</p>
+    {% endif %}
+    <p>
+        <a href="{% url 'profile_edit' user.id %}">Edit</a>
+    </p>
 {% endblock %}
