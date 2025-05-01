@@ -8,6 +8,7 @@ from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth import get_user_model
+
 User = get_user_model()
 
 
@@ -31,6 +32,9 @@ class ProfileView(DetailView):
     template_name = 'profile.html'
     context_object_name = 'user'
 
+    def get_object(self, queryset=None):
+        return self.request.user
+
 
 @method_decorator(login_required, name='dispatch')
 class ProfileEditView(UpdateView):
@@ -41,3 +45,5 @@ class ProfileEditView(UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user
+    
+    
