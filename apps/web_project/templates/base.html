@@ -12,9 +12,9 @@
         <button class="menu-toggle" onclick="toggleSidebar()">☰ Меню</button>
         <ul>
             <li><a href="{% url 'home' %}">Главная</a></li>
-            <!-- <li><a href="#">Профиль</a></li> -->
             <li><a href="#">Настройки</a></li>
             {% if user.is_authenticated %}
+                <li><a href="{% url 'profile' user.id %}">Профиль</a></li>
                 <li><a href="{% url 'logout' %}">Выход</a></li>
             {% else %}
                 <li><a href="{% url 'login' %}">login</a></li>

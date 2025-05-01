@@ -1,9 +1,14 @@
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView, UpdateView
 from .forms import UserRegistrationForm
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
 
+from django.contrib.auth.forms import UserChangeForm
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class HomePageView(TemplateView):
@@ -13,18 +18,26 @@ class HomePageView(TemplateView):
 class RegisterView(FormView):
     template_name = 'register.html'
     form_class = UserRegistrationForm
-    success_url = reverse_lazy('login')  # Переадресация на страницу логина после успешной регистрации
+    success_url = reverse_lazy('login')
 
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)
+    
 
-# def register(request):
-#     if request.method == 'POST':
-#         form = UserRegistrationForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('login')
-#     else:
-#         form = UserRegistrationForm()
-#     return render(request, 'register.html', {'form': form})
+@method_decorator(login_required, name='dispatch')
+class ProfileView(DetailView):
+    model = User
+    template_name = 'profile.html'
+    context_object_name = 'user'
+
+
+@method_decorator(login_required, name='dispatch')
+class ProfileEditView(UpdateView):
+    model = User
+    form_class = UserChangeForm
+    template_name = 'profile_edit.html'
+    success_url = reverse_lazy('profile')
+
+    def get_object(self, queryset=None):
+        return self.request.user
