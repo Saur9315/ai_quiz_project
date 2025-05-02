@@ -4,10 +4,12 @@ from .forms import UserRegistrationForm
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
 
-from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth import get_user_model
+from django.http import Http404
+from .forms import CustomUserChangeForm
+
 
 User = get_user_model()
 
@@ -39,11 +41,15 @@ class ProfileView(DetailView):
 @method_decorator(login_required, name='dispatch')
 class ProfileEditView(UpdateView):
     model = User
-    form_class = UserChangeForm
+    form_class = CustomUserChangeForm
     template_name = 'profile_edit.html'
     success_url = reverse_lazy('profile')
 
     def get_object(self, queryset=None):
-        return self.request.user
+        obj = super().get_object(queryset)
+        if obj != self.request.user:
+            raise Http404("Вы не можете редактировать этот профиль")
+        return obj
+
     
     

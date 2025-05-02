@@ -6,6 +6,13 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
+        {% if form.password %}
+            <style>
+                .form-row .field-password {
+                    display: none;
+                }
+            </style>
+        {% endif %}
         <button type="submit">Сохранить изменения</button>
     </form>
 {% endblock %}
