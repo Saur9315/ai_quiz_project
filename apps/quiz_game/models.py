@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
-
+from django.conf import settings
 
 
 class Quiz(models.Model):
@@ -55,10 +55,13 @@ class Quiz(models.Model):
             
 
 class UserQuizGame(models.Model):
-    user_id = models.ForeignKey(get_user_model, on_delete=models.SET_NULL)
-    quiz_id = models.ForeignKey(Quiz, on_delete=models.SET_NULL)
-    given_answers = models.TextChoices(Quiz.answer_choices.choices, blank=True)
-    is_completed = models.BooleanField(verbose_name='is completed')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.SET_NULL, null=True, blank=True)
+    given_answers = models.JSONField(blank=True, null=True)
+    is_completed = models.BooleanField(verbose_name='Is Completed', default=False)
+
+    def __str__(self):
+        return f'{self.user} - {self.quiz}'
 
 
 class UserStats(models.Model):
@@ -67,11 +70,15 @@ class UserStats(models.Model):
         MODERATE = 'moderate', 'Moderate Level'
         ADVANCED = 'advanced', 'Advanced Level'
 
-    user_id = models.ForeignKey(get_user_model, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     total_xp = models.PositiveIntegerField(default=0)
     total_correct_answers = models.PositiveIntegerField(default=0)
     knowledge_level = models.CharField(
-        max_length=100,
+        max_length=20,
         choices=KnowledgeLevel.choices,
-        verbose_name='Knowledge Level'
+        verbose_name='Knowledge Level',
+        default=KnowledgeLevel.BEGINNER
     )
+
+    def __str__(self):
+        return f'{self.user} - {self.knowledge_level}'
