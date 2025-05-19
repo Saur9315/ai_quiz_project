@@ -18,7 +18,7 @@ class Quiz(models.Model):
         STATS = 'ststs', 'Statistics'
 
     class Difficulty(models.TextChoices):
-        BEGGINNER = 'begginer', 'Begginer Level'
+        BEGINNER = 'beginner', 'Beginner Level'
         MODERATE = 'moderate', 'Moderate Level'
         ADVANCED = 'advanced', 'Advanced Level'
 
@@ -66,7 +66,7 @@ class UserQuizGame(models.Model):
 
 class UserStats(models.Model):
     class KnowledgeLevel(models.TextChoices):
-        BEGGINNER = 'begginer', 'Begginer Level'
+        BEGINNER = 'beginner', 'Beginner Level'
         MODERATE = 'moderate', 'Moderate Level'
         ADVANCED = 'advanced', 'Advanced Level'
 
