@@ -6,10 +6,14 @@ from django.conf import settings
 
 
 class Quiz(models.Model):
+    class Meta:
+        verbose_name = "Quiz"
+        verbose_name_plural = "Quizzes"
+
     class Topic(models.TextChoices):
         ML = 'ml', 'Machine Learning'
         DL = 'dl', 'Deep Learning'
-        AI = 'dl', 'Artificial Intelligence'
+        AI = 'ai', 'Artificial Intelligence'
         AI_POP_CULTURE = 'ai_pop_culture', 'AI in pop-culture'
         AI_APPLICATION = 'ai_application', 'Application of AI'
         CV = 'cv', 'Computer Vision'
@@ -65,6 +69,10 @@ class UserQuizGame(models.Model):
 
 
 class UserStats(models.Model):
+    class Meta:
+        verbose_name = "UserStats"
+        verbose_name_plural = "UserStats"
+
     class KnowledgeLevel(models.TextChoices):
         BEGINNER = 'beginner', 'Beginner Level'
         MODERATE = 'moderate', 'Moderate Level'
