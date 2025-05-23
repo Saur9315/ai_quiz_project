@@ -41,6 +41,10 @@ coverage.xml
 *.py,cover
 .hypothesis/
 
+# data folder
+datasets/
+*.xlsx
+*.csv
 
 # Django
 *.log
@@ -68,3 +72,6 @@ static/
 # System files
 .DS_Store
 Thumbs.db
+
+# jupyter notebook files
+*.ipynb
