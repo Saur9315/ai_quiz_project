@@ -57,6 +57,17 @@ class Quiz(models.Model):
             if index >= len(self.answer_choices) or index < 0:
                 raise ValidationError(f'Answer index {index} is out of range.')
             
+    def validate(self, data):
+        answers = data['answer_choices']
+        indexes = data['true_answer_indexes']
+
+        for index in indexes:
+            if index >= len(answers) or index < 0:
+                raise serializers.ValidationError(
+                    f"Index {index} is out of bounds for answer_choices"
+                )
+        return data
+            
 
 class UserQuizGame(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
