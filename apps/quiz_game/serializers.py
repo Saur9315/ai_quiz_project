@@ -50,3 +50,12 @@ class QuizQuestionListSerializer(ModelSerializer):
     #     # questions = obj.question.all()[offset:offset+page_size]
     #     return self.get_questions(obj)
     #     # return QuestionSerializer(questions, many=True).data
+
+class QuizStartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quiz
+        fields = ['id', 'topic', 'question_name', 'answer_choices', 'difficulty', 'question_xp']
+
+
+class QuizSubmitSerializer(serializers.Serializer):
+    submitted_answers = serializers.ListField(child=serializers.IntegerField())
