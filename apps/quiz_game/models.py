@@ -57,17 +57,6 @@ class Quiz(models.Model):
             if index >= len(self.answer_choices) or index < 0:
                 raise ValidationError(f'Answer index {index} is out of range.')
             
-    def validate(self, data):
-        answers = data['answer_choices']
-        indexes = data['true_answer_indexes']
-
-        for index in indexes:
-            if index >= len(answers) or index < 0:
-                raise serializers.ValidationError(
-                    f"Index {index} is out of bounds for answer_choices"
-                )
-        return data
-            
 
 class UserQuizGame(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -101,3 +90,15 @@ class UserStats(models.Model):
 
     def __str__(self):
         return f'{self.user} - {self.knowledge_level}'
+
+class QuizResult(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    submitted_answers = ArrayField(models.IntegerField())
+    correct_count = models.PositiveIntegerField()
+    xp_earned = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.quiz.topic} ({self.created_at.date()})"
+

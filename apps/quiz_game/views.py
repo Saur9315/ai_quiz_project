@@ -1,10 +1,14 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from apps.quiz_game.models import Quiz, UserQuizGame, UserStats
+from apps.quiz_game.models import Quiz, UserQuizGame, UserStats, QuizResult
 from apps.quiz_game.ml_model import predict
-from apps.quiz_game.serializers import QuizQuestionListSerializer, QuestionSerializer
-
+from apps.quiz_game.serializers import (
+    QuizQuestionListSerializer, 
+    QuestionSerializer, 
+    QuizStartSerializer, 
+    QuizSubmitSerializer
+)
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -105,3 +109,44 @@ class QuizQuiestionUploadView(ModelViewSet):    # for admin, staff
             return Response({"detail": "You do not have permission to perform this action."}, status=status.HTTP_403_FORBIDDEN)
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+class QuizViewSet(ModelViewSet):
+    queryset = Quiz.objects.all()
+    serializer_class = QuestionSerializer
+
+    @action(detail=True, methods=['get'])
+    def start(self, request, pk=None):
+        quiz = self.get_object()
+        serializer = QuizStartSerializer(quiz)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def submit(self, request, pk=None):
+        quiz = self.get_object()
+        serializer = QuizSubmitSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        submitted = serializer.validated_data['submitted_answers']
+        correct = quiz.true_answer_indexes
+
+        correct_set = set(correct)
+        submitted_set = set(submitted)
+        correct_count = len(correct_set & submitted_set)
+        total_correct = len(correct_set)
+
+        score = int((correct_count / total_correct) * quiz.question_xp)
+        result = QuizResult.objects.create(
+            user=request.user,
+            quiz=quiz,
+            submitted_answers=submitted,
+            correct_count=correct_count,
+            xp_earned=score
+        )
+
+        return Response({
+            'quiz_id': quiz.id,
+            'correct_count': correct_count,
+            'total_correct': total_correct,
+            'xp_earned': score
+        })
