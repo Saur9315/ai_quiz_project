@@ -18,12 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.quiz_game.routers import router as game_router
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.web_project.urls')),
-    # path('api/v1/', include('apps.quiz_game.urls')),
+    path('api/v1/', include(game_router.urls)),
 ]
 
 if settings.DEBUG:

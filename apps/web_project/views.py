@@ -4,6 +4,7 @@ from .forms import UserRegistrationForm
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
 
+from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth import get_user_model
@@ -26,7 +27,6 @@ class RegisterView(FormView):
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)
-    
 
 @method_decorator(login_required, name='dispatch')
 class ProfileView(DetailView):
