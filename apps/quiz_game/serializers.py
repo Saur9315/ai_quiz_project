@@ -66,3 +66,20 @@ class QuizResultSerializer(serializers.ModelSerializer):
         model = QuizResult
         fields = '__all__'
         read_only_fields = ['user', 'quiz', 'submitted_at']
+
+
+class QuizResultHistorySerializer(serializers.ModelSerializer):
+    quiz_topic = serializers.CharField(source='quiz.topic')
+    question_name = serializers.CharField(source='quiz.question_name')
+
+    class Meta:
+        model = QuizResult
+        fields = [
+            'id',
+            'quiz_id',
+            'quiz_topic',
+            'question_name',
+            'correct_count',
+            'xp_earned',
+            'created_at'
+        ]
