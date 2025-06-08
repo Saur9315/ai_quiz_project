@@ -213,6 +213,16 @@ class QuizViewSet(ModelViewSet):
                 } for topic, v in worst_topics
             ]
         })
+    
+    @action(detail=False, methods=['get'], url_path='leaderboard')
+    def leaderboard(self, request):
+        leaderboard_data = (
+            QuizResult.objects.values('user__id', 'user__username')
+            .annotate(total_xp=Sum('xp_earned'))
+            .order_by('-total_xp')[:10]  # топ-10
+        )
+
+        return Response(leaderboard_data)
 
 
 class QuizResultViewSet(ReadOnlyModelViewSet):
