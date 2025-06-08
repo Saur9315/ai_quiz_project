@@ -15,6 +15,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
+from django.db.models import Avg, Sum, Count
+from collections import Counter
+
 
 # @login_required
 # def profile_prediction_view(request):
@@ -152,6 +155,65 @@ class QuizViewSet(ModelViewSet):
             'xp_earned': score
         })
     
+    @action(detail=False, methods=['get'], url_path='my-progress')
+    def my_progress(self, request):
+        user = request.user
+        results = QuizResult.objects.filter(user=user)
+
+        total_quizzes = results.count()
+        total_xp = results.aggregate(Sum('xp_earned'))['xp_earned__sum'] or 0
+        avg_correct_percent = 0
+
+        topic_counter = Counter()
+        topic_correctness = {}
+
+        if total_quizzes > 0:
+            total_questions = 0
+            total_correct = 0
+            for r in results:
+                total_questions += len(r.quiz.true_answer_indexes)
+                total_correct += r.correct_count
+
+                topic = r.quiz.topic
+                topic_counter[topic] += 1
+
+                if topic not in topic_correctness:
+                    topic_correctness[topic] = {'correct': 0, 'total': 0}
+                topic_correctness[topic]['correct'] += r.correct_count
+                topic_correctness[topic]['total'] += len(r.quiz.true_answer_indexes)
+
+            avg_correct_percent = round((total_correct / total_questions) * 100, 2)
+
+        top_topics = sorted(
+            topic_correctness.items(),
+            key=lambda x: (x[1]['correct'] / x[1]['total']) if x[1]['total'] else 0,
+            reverse=True
+        )[:3]
+
+        worst_topics = sorted(
+            topic_correctness.items(),
+            key=lambda x: (x[1]['correct'] / x[1]['total']) if x[1]['total'] else 0,
+        )[:3]
+
+        return Response({
+            'user': user.username,
+            'total_quizzes_passed': total_quizzes,
+            'total_xp_earned': total_xp,
+            'avg_accuracy_percent': avg_correct_percent,
+            'top_topics': [
+                {
+                    'topic': topic,
+                    'accuracy_percent': round((v['correct'] / v['total']) * 100, 2)
+                } for topic, v in top_topics
+            ],
+            'weakest_topics': [
+                {
+                    'topic': topic,
+                    'accuracy_percent': round((v['correct'] / v['total']) * 100, 2)
+                } for topic, v in worst_topics
+            ]
+        })
+
 
 class QuizResultViewSet(ReadOnlyModelViewSet):
     serializer_class = QuizResultSerializer
