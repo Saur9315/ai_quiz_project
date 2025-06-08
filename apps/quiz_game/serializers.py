@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from rest_framework import serializers
-from apps.quiz_game.models import Quiz, UserQuizGame, UserStats
+from apps.quiz_game.models import Quiz, UserQuizGame, UserStats, QuizResult
 
 
 class QuestionSerializer(ModelSerializer):
@@ -58,4 +58,11 @@ class QuizStartSerializer(serializers.ModelSerializer):
 
 
 class QuizSubmitSerializer(serializers.Serializer):
-    submitted_answers = serializers.ListField(child=serializers.IntegerField())
+    submitted_answers = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
+
+
+class QuizResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizResult
+        fields = '__all__'
+        read_only_fields = ['user', 'quiz', 'submitted_at']

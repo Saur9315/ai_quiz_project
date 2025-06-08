@@ -102,3 +102,15 @@ class QuizResult(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.quiz.topic} ({self.created_at.date()})"
 
+
+class QuizAttempt(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='quiz_attempts')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
+    submitted_answers = models.JSONField()
+    earned_xp = models.PositiveIntegerField(default=0)
+    is_passed = models.BooleanField(default=False)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Quiz Attempt"
+        verbose_name_plural = "Quiz Attempts"

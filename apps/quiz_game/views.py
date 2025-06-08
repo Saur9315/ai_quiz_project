@@ -7,9 +7,10 @@ from apps.quiz_game.serializers import (
     QuizQuestionListSerializer, 
     QuestionSerializer, 
     QuizStartSerializer, 
-    QuizSubmitSerializer
+    QuizSubmitSerializer,
+    QuizResultSerializer
 )
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -150,3 +151,11 @@ class QuizViewSet(ModelViewSet):
             'total_correct': total_correct,
             'xp_earned': score
         })
+    
+
+class QuizResultViewSet(ReadOnlyModelViewSet):
+    serializer_class = QuizResultSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return QuizResult.objects.filter(user=self.request.user)
