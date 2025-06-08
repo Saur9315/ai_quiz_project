@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 3rd
     'rest_framework',
+    'django_filters',
     # my apps
     'apps.web_project.apps.WebappConfig',
     'apps.quiz_game.apps.QuizGameConfig',
@@ -124,6 +125,12 @@ USE_I18N = True
 
 USE_TZ = True
 
+# REST framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/

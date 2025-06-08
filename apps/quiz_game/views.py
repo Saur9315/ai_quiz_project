@@ -17,6 +17,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet, BooleanFilter, CharFilter
+
 from django.db.models import Avg, Sum, Count
 from collections import Counter
 
@@ -115,11 +117,29 @@ class QuizQuiestionUploadView(ModelViewSet):    # for admin, staff
             return Response({"detail": "You do not have permission to perform this action."}, status=status.HTTP_403_FORBIDDEN)
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
+
+class QuizFilter(FilterSet):
+    topic = CharFilter(field_name='topic', lookup_expr='exact')
+    difficulty = CharFilter(field_name='difficulty', lookup_expr='exact')
+    only_uncompleted = BooleanFilter(method='filter_uncompleted')
+
+    def filter_uncompleted(self, queryset, name, value):
+        if value and self.request.user.is_authenticated:
+            completed = QuizResult.objects.filter(user=self.request.user).values_list('quiz_id', flat=True)
+            queryset = queryset.exclude(id__in=completed)
+        return queryset
+
+    class Meta:
+        model = Quiz
+        fields = ['topic', 'difficulty', 'only_uncompleted']
+
 
 class QuizViewSet(ModelViewSet):
     queryset = Quiz.objects.all()
     serializer_class = QuestionSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = QuizFilter
 
     @action(detail=True, methods=['get'])
     def start(self, request, pk=None):
