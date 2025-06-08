@@ -19,6 +19,10 @@ from rest_framework import status
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, BooleanFilter, CharFilter
 
+from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import IsAdminUser
+import pandas as pd
+
 from django.db.models import Avg, Sum, Count
 from collections import Counter
 
@@ -262,3 +266,32 @@ class MyQuizHistoryView(APIView):
         results = QuizResult.objects.filter(user=request.user).order_by('-created_at')
         serializer = QuizResultHistorySerializer(results, many=True)
         return Response(serializer.data)
+    
+
+# Quiz Excel Upload View
+class QuizExcelUploadView(APIView):
+    parser_classes = [MultiPartParser]
+    permission_classes = [IsAdminUser]
+
+    def post(self, request, *args, **kwargs):
+        excel_file = request.FILES.get("file")
+        if not excel_file:
+            return Response({"error": "No file uploaded."}, status=400)
+
+        try:
+            df = pd.read_excel(excel_file)
+
+            for _, row in df.iterrows():
+                Quiz.objects.create(
+                    topic=row['topic'],
+                    difficulty=row['difficulty'],
+                    question_name=row['question'],
+                    answer_choices=[row['answer1'], row['answer2'], row['answer3'], row['answer4']],
+                    true_answer_indexes=[int(i.strip()) for i in str(row['correct_answer_idx']).split(';')],
+                    question_xp=int(row['xp'])
+                )
+
+            return Response({"status": "Quiz data uploaded successfully."})
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
