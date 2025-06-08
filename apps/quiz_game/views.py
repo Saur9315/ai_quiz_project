@@ -8,9 +8,11 @@ from apps.quiz_game.serializers import (
     QuestionSerializer, 
     QuizStartSerializer, 
     QuizSubmitSerializer,
-    QuizResultSerializer
+    QuizResultSerializer,
+    QuizResultHistorySerializer,
 )
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -231,3 +233,12 @@ class QuizResultViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return QuizResult.objects.filter(user=self.request.user)
+    
+
+class MyQuizHistoryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        results = QuizResult.objects.filter(user=request.user).order_by('-created_at')
+        serializer = QuizResultHistorySerializer(results, many=True)
+        return Response(serializer.data)
